@@ -224,6 +224,8 @@ renameType t = case t of
   HsTyVar _ ip (L l n) -> return . HsTyVar NoExt ip . L l =<< rename n
   HsBangTy _ b ltype -> return . HsBangTy NoExt b =<< renameLType ltype
 
+  HsStarTy _ isUni -> return (HsStarTy NoExt isUni)
+
   HsAppTy _ a b -> do
     a' <- renameLType a
     b' <- renameLType b
@@ -267,7 +269,6 @@ renameType t = case t of
   HsExplicitTupleTy x b     -> HsExplicitTupleTy x <$> mapM renameLType b
   HsSpliceTy _ _            -> error "renameType: HsSpliceTy"
   HsWildCardTy a            -> HsWildCardTy <$> renameWildCardInfo a
-  HsAppsTy _ _              -> error "renameType: HsAppsTy"
 
 renameLHsQTyVars :: LHsQTyVars GhcRn -> RnM (LHsQTyVars DocNameI)
 renameLHsQTyVars (HsQTvs { hsq_explicit = tvs })
