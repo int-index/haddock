@@ -198,7 +198,10 @@ getGADTConType (XConDecl {}) = panic "getGADTConType"
 
 -- -------------------------------------
 
-getGADTConTypeG :: ConDecl (GhcPass p) -> LHsType (GhcPass p)
+getGADTConTypeG
+  :: (XRecTy (GhcPass p) ~ NoExt, XFunTy (GhcPass p) ~ NoExt,
+      XQualTy (GhcPass p) ~ NoExt, XForAllTy (GhcPass p) ~ NoExt)
+  => ConDecl (GhcPass p) -> LHsType (GhcPass p)
 -- The full type of a GADT data constructor We really only get this in
 -- order to pretty-print it, and currently only in Haddock's code.  So
 -- we are cavalier about locations and extensions, hence the

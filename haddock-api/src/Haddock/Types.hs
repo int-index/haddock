@@ -371,7 +371,10 @@ data PseudoFamilyDecl name = PseudoFamilyDecl
     }
 
 
-mkPseudoFamilyDecl :: FamilyDecl (GhcPass p) -> PseudoFamilyDecl (GhcPass p)
+mkPseudoFamilyDecl
+  :: (XTyVar (GhcPass p) ~ NoExt, XKindSig (GhcPass p) ~ NoExt)
+  => FamilyDecl (GhcPass p)
+  -> PseudoFamilyDecl (GhcPass p)
 mkPseudoFamilyDecl (FamilyDecl { .. }) = PseudoFamilyDecl
     { pfdInfo = fdInfo
     , pfdLName = fdLName
@@ -690,7 +693,7 @@ type instance XExplicitListTy  DocNameI = NoExt
 type instance XExplicitTupleTy DocNameI = NoExt
 type instance XTyLit           DocNameI = NoExt
 type instance XWildCardTy      DocNameI = HsWildCardInfo
-type instance XXType           DocNameI = NewHsTypeX
+type instance XXType           DocNameI = DerivedCoreTy
 
 type instance XUserTyVar    DocNameI = NoExt
 type instance XKindedTyVar  DocNameI = NoExt

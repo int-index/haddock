@@ -272,7 +272,7 @@ renameType t = case t of
   HsTyLit _ x -> return (HsTyLit NoExt x)
 
   HsRecTy _ a               -> HsRecTy NoExt <$> mapM renameConDeclFieldField a
-  (XHsType (NHsCoreTy a))   -> pure (XHsType (NHsCoreTy a))
+  XHsType (HsGhcXType _ a) -> pure (XHsType a)
   HsExplicitListTy i a b  -> HsExplicitListTy i a <$> mapM renameLType b
   HsExplicitTupleTy a b   -> HsExplicitTupleTy a <$> mapM renameLType b
   HsSpliceTy _ s          -> renameHsSpliceTy s

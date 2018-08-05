@@ -2,6 +2,8 @@
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE NoMonoLocalBinds #-}
 {-# LANGUAGE RecordWildCards #-}
 
 module Haddock.Interface.Specialize
@@ -108,7 +110,9 @@ specializeInstHead ihd = ihd
 sugar :: HsType GhcRn -> HsType GhcRn
 sugar = sugarOperators . sugarTuples . sugarLists
 
-sugarLists :: NamedThing (IdP (GhcPass p)) => HsType (GhcPass p) -> HsType (GhcPass p)
+sugarLists
+  :: (XListTy (GhcPass p) ~ NoExt, NamedThing (IdP (GhcPass p)))
+  => HsType (GhcPass p) -> HsType (GhcPass p)
 sugarLists (HsAppTy _ (L _ (HsTyVar _ _ (L _ name))) ltyp)
     | isBuiltInSyntax name' && strName == "[]" = HsListTy NoExt ltyp
   where
@@ -117,7 +121,9 @@ sugarLists (HsAppTy _ (L _ (HsTyVar _ _ (L _ name))) ltyp)
 sugarLists typ = typ
 
 
-sugarTuples :: NamedThing (IdP (GhcPass p)) => HsType (GhcPass p) -> HsType (GhcPass p)
+sugarTuples
+  :: (XTupleTy (GhcPass p) ~ NoExt, NamedThing (IdP (GhcPass p)))
+  => HsType (GhcPass p) -> HsType (GhcPass p)
 sugarTuples typ =
     aux [] typ
   where
@@ -134,7 +140,10 @@ sugarTuples typ =
     aux _ _ = typ
 
 
-sugarOperators :: NamedThing (IdP (GhcPass p)) => HsType (GhcPass p) -> HsType (GhcPass p)
+sugarOperators
+  :: (XOpTy (GhcPass p) ~ NoExt, XFunTy (GhcPass p) ~ NoExt,
+      NamedThing (IdP (GhcPass p)))
+  => HsType (GhcPass p) -> HsType (GhcPass p)
 sugarOperators (HsAppTy _ (L _ (HsAppTy _ (L _ (HsTyVar _ _ (L l name))) la)) lb)
     | isSymOcc $ getOccName name' = mkHsOpTy la (L l name) lb
     | isBuiltInSyntax name' && getOccString name == "(->)" = HsFunTy NoExt la lb
@@ -269,7 +278,7 @@ renameType t@(HsSpliceTy _ _) = pure t
 renameType (HsDocTy x lt doc) = HsDocTy x <$> renameLType lt <*> pure doc
 renameType (HsBangTy x bang lt) = HsBangTy x bang <$> renameLType lt
 renameType t@(HsRecTy _ _) = pure t
-renameType t@(XHsType (NHsCoreTy _)) = pure t
+renameType t@(XHsType (HsGhcXType _ (DerivedCoreTy _))) = pure t
 renameType (HsExplicitListTy x ip ltys) =
     HsExplicitListTy x ip <$> renameLTypes ltys
 renameType (HsExplicitTupleTy x ltys) =
