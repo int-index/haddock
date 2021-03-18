@@ -94,7 +94,7 @@ dropHsDocTy = drop_sig_ty
         drop_ty (HsDocTy _ a _) = drop_ty $ unL a
         drop_ty x = x
 
-outHsSigType :: (OutputableBndrId p, NoGhcTcPass p ~ p)
+outHsSigType :: (OutputableBndrId p, NoGhcTcPass p ~ p, XParTy (GhcPass p) ~ NoExtField)
              => DynFlags -> HsSigType (GhcPass p) -> String
 outHsSigType dflags = out dflags . reparenSigType . dropHsDocTy
 

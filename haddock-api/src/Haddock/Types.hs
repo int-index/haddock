@@ -412,7 +412,7 @@ data PseudoFamilyDecl name = PseudoFamilyDecl
     }
 
 
-mkPseudoFamilyDecl :: FamilyDecl (GhcPass p) -> PseudoFamilyDecl (GhcPass p)
+mkPseudoFamilyDecl :: (XKindSig (GhcPass p) ~ NoExtField, XTyVar (GhcPass p) ~ NoExtField) => FamilyDecl (GhcPass p) -> PseudoFamilyDecl (GhcPass p)
 mkPseudoFamilyDecl (FamilyDecl { .. }) = PseudoFamilyDecl
     { pfdInfo = fdInfo
     , pfdLName = fdLName
@@ -420,7 +420,7 @@ mkPseudoFamilyDecl (FamilyDecl { .. }) = PseudoFamilyDecl
     , pfdKindSig = fdResultSig
     }
   where
-    mkType :: HsTyVarBndr flag (GhcPass p) -> HsType (GhcPass p)
+    mkType :: (XKindSig (GhcPass p) ~ NoExtField, XTyVar (GhcPass p) ~ NoExtField) => HsTyVarBndr flag (GhcPass p) -> HsType (GhcPass p)
     mkType (KindedTyVar _ _ (L loc name) lkind) =
         HsKindSig noExtField tvar lkind
       where

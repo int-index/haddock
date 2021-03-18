@@ -109,13 +109,13 @@ specializeInstHead ihd = ihd
 sugar :: HsType GhcRn -> HsType GhcRn
 sugar = sugarOperators . sugarTuples . sugarLists
 
-sugarLists :: NamedThing (IdP (GhcPass p)) => HsType (GhcPass p) -> HsType (GhcPass p)
+sugarLists :: (XListTy (GhcPass p) ~ NoExtField, NamedThing (IdP (GhcPass p))) => HsType (GhcPass p) -> HsType (GhcPass p)
 sugarLists (HsAppTy _ (L _ (HsTyVar _ _ (L _ name))) ltyp)
     | getName name == listTyConName = HsListTy noExtField ltyp
 sugarLists typ = typ
 
 
-sugarTuples :: NamedThing (IdP (GhcPass p)) => HsType (GhcPass p) -> HsType (GhcPass p)
+sugarTuples :: (XTupleTy (GhcPass p) ~ NoExtField, NamedThing (IdP (GhcPass p))) => HsType (GhcPass p) -> HsType (GhcPass p)
 sugarTuples typ =
     aux [] typ
   where
@@ -132,7 +132,7 @@ sugarTuples typ =
     aux _ _ = typ
 
 
-sugarOperators :: NamedThing (IdP (GhcPass p)) => HsType (GhcPass p) -> HsType (GhcPass p)
+sugarOperators :: (XOpTy (GhcPass p) ~ NoExtField, XFunTy (GhcPass p) ~ NoExtField, NamedThing (IdP (GhcPass p))) => HsType (GhcPass p) -> HsType (GhcPass p)
 sugarOperators (HsAppTy _ (L _ (HsAppTy _ (L _ (HsTyVar _ _ (L l name))) la)) lb)
     | isSymOcc $ getOccName name' = mkHsOpTy la (L l name) lb
     | unrestrictedFunTyConName == name' = HsFunTy noExtField (HsUnrestrictedArrow NormalSyntax) la lb
